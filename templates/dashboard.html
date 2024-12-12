@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Phishing Detection Dashboard</title>
+    <style>
+        /* Styling for the dashboard */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #scan-status {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Phishing Detection Dashboard</h1>
+    
+    <!-- Trigger Email Scan Button -->
+    <button id="trigger-scan-button">Scan email now</button>
+    <p id="scan-status"></p>
+    
+    <!-- Alerts Table -->
+    <table>
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for alert in alerts %}
+            <tr>
+                <td>{{ alert.subject }}</td>
+                <td>{{ alert.details }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="2" style="text-align: center;">No phishing alerts found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        // JavaScript to trigger the email scan
+        document.getElementById('trigger-scan-button').addEventListener('click', function () {
+            const statusElement = document.getElementById('scan-status');
+            statusElement.textContent = "Scanning emails...";
+
+            fetch('/trigger_scan', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        statusElement.textContent = data.message;
+                        setTimeout(() => location.reload(), 2000); // Reload page to update alerts
+                    } else {
+                        statusElement.textContent = `Error: ${data.message}`;
+                    }
+                })
+                .catch(error => {
+                    statusElement.textContent = `Error: ${error.message}`;
+                });
+        });
+    </script>
+</body>
+</html>
